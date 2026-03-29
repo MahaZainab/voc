@@ -5,8 +5,7 @@ from groq import Groq
 from gtts import gTTS
 import base64
 import io
-import tempfile
-import os
+
 
 # ── Page Config ────────────────────────────────────────────────────────────────
 st.set_page_config(
@@ -373,38 +372,78 @@ with right_col:
     with btn_col:
         send_clicked = st.button("Send ➤", use_container_width=True, type="primary")
 
-    # Voice input section
-    st.markdown("""
-    <div class="voice-section">
-        <div class="voice-instructions">
-            🎤 <strong>Voice Input:</strong> Use the mic button below, then paste your transcribed text above
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    # Audio recorder (using streamlit-audio-recorder if available, else show instructions)
-    try:
-        from audiorecorder import audiorecorder
-        audio = audiorecorder("🎤 Hold to Record", "⏹ Release to Send")
-        if len(audio) > 0:
-            # Export to bytes and transcribe via Groq Whisper
-            with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as f:
-                audio.export(f.name, format="wav")
-                if st.session_state.groq_client:
-                    with open(f.name, "rb") as af:
-                        transcription = st.session_state.groq_client.audio.transcriptions.create(
-                            model="whisper-large-v3",
-                            file=af,
-                        )
-                    st.session_state["voice_text"] = transcription.text
-                    st.rerun()
-                os.unlink(f.name)
-    except ImportError:
-        st.markdown("""
-        <div class="voice-tip">
-            💡 Install <code>audiorecorder</code> for live mic input:<br>
-            <code>pip install streamlit-audiorecorder</code>
-        </div>""", unsafe_allow_html=True)
+    # ── Voice Input via Browser Web Speech API ─────────────────────────────────
+    # Uses the browser's built-in speech recognition — no extra packages needed.
+    # Works on Streamlit Cloud (Chrome/Edge).
+    st.components.v1.html("""
+    <style>
+      #mic-btn {
+        background: linear-gradient(135deg, #6c63ff, #00d4aa);
+        border: none; border-radius: 50px; color: white; cursor: pointer;
+        font-size: 15px; font-weight: 600; padding: 10px 28px; margin: 6px 0;
+        transition: all 0.2s; width: 100%; letter-spacing: 0.03em;
+      }
+      #mic-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+      #mic-btn.recording { background: linear-gradient(135deg, #ff4757, #ff6b81); animation: pulse-rec 1s infinite; }
+      #status { font-size: 12px; color: #7c84a8; margin-top: 4px; min-height: 18px; text-align: center; }
+      @keyframes pulse-rec {
+        0%,100% { box-shadow: 0 0 0 0 rgba(255,71,87,0.4); }
+        50% { box-shadow: 0 0 0 8px rgba(255,71,87,0); }
+      }
+    </style>
+    <button id="mic-btn" onclick="toggleMic()">🎤 Click to Speak</button>
+    <div id="status">Click button, speak your order, it will auto-fill above</div>
+    <script>
+    let recognition = null;
+    let isRecording = false;
+    function toggleMic() {
+      if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        document.getElementById('status').innerText = 'Use Chrome or Edge for voice input';
+        return;
+      }
+      if (isRecording) { recognition.stop(); return; }
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognition = new SR();
+      recognition.lang = 'en-US';
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+      recognition.onstart = () => {
+        isRecording = true;
+        document.getElementById('mic-btn').classList.add('recording');
+        document.getElementById('mic-btn').innerText = '⏹ Stop';
+        document.getElementById('status').innerText = '🔴 Listening — speak now...';
+      };
+      recognition.onresult = (e) => {
+        const transcript = e.results[0][0].transcript;
+        document.getElementById('status').innerText = '✅ Heard: "' + transcript + '" — now click Send ➤';
+        // Inject transcript into the Streamlit text input
+        try {
+          const inputs = window.parent.document.querySelectorAll('input[type=text]');
+          for (const inp of inputs) {
+            if (inp.offsetParent !== null) {
+              const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.parent.HTMLInputElement.prototype, 'value').set;
+              nativeInputValueSetter.call(inp, transcript);
+              inp.dispatchEvent(new Event('input', {bubbles: true}));
+              break;
+            }
+          }
+        } catch(err) { document.getElementById('status').innerText += ' (copy text manually if needed)'; }
+      };
+      recognition.onerror = (e) => {
+        document.getElementById('status').innerText = 'Error: ' + e.error + ' — try again';
+        isRecording = false;
+        document.getElementById('mic-btn').classList.remove('recording');
+        document.getElementById('mic-btn').innerText = '🎤 Click to Speak';
+      };
+      recognition.onend = () => {
+        isRecording = false;
+        document.getElementById('mic-btn').classList.remove('recording');
+        document.getElementById('mic-btn').innerText = '🎤 Click to Speak';
+      };
+      recognition.start();
+    }
+    </script>
+    """, height=95)
 
     # Use voice text if captured
     if "voice_text" in st.session_state and st.session_state.voice_text:
