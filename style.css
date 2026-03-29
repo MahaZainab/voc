@@ -1,0 +1,414 @@
+/* ── VoxCart – Voice Shopping Assistant Styles ─────────────────────────────── */
+
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
+
+:root {
+  --bg: #0a0c14;
+  --surface: #111420;
+  --surface2: #181c2e;
+  --border: #ffffff10;
+  --accent: #6c63ff;
+  --accent2: #00d4aa;
+  --text: #e8eaf6;
+  --text-muted: #7c84a8;
+  --user-bubble: #1e2340;
+  --ai-bubble: #161a2e;
+  --radius: 16px;
+}
+
+/* ── Global Reset ────────────────────────────────────────────────────────────── */
+html, body, [data-testid="stAppViewContainer"] {
+  background: var(--bg) !important;
+  color: var(--text) !important;
+  font-family: 'DM Sans', sans-serif !important;
+}
+
+[data-testid="stSidebar"] {
+  background: var(--surface) !important;
+  border-right: 1px solid var(--border) !important;
+}
+
+/* Hide default streamlit elements */
+#MainMenu, footer, header { visibility: hidden; }
+[data-testid="stToolbar"] { display: none; }
+
+/* ── App Header ──────────────────────────────────────────────────────────────── */
+.app-header {
+  text-align: center;
+  padding: 2rem 0 1.5rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 2rem;
+}
+
+.logo-text {
+  font-family: 'Syne', sans-serif;
+  font-size: 2.8rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #6c63ff, #00d4aa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -1px;
+}
+
+.tagline {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  margin-top: 0.25rem;
+  letter-spacing: 0.05em;
+}
+
+/* ── Store Selection ─────────────────────────────────────────────────────────── */
+.store-select-prompt {
+  text-align: center;
+  font-family: 'Syne', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin: 1rem 0 2rem;
+}
+
+/* ── Avatar Panel ────────────────────────────────────────────────────────────── */
+.avatar-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  min-height: 480px;
+}
+
+.store-badge {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 0.4rem 1rem;
+  border-radius: 100px;
+  border: 1px solid;
+  letter-spacing: 0.05em;
+}
+
+/* ── Avatar ──────────────────────────────────────────────────────────────────── */
+.avatar-wrapper {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-face {
+  width: 120px;
+  height: 120px;
+  background: linear-gradient(145deg, #1e2340, #252b4a);
+  border-radius: 50%;
+  border: 3px solid var(--accent);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  position: relative;
+  z-index: 2;
+  box-shadow: 0 0 30px #6c63ff40;
+}
+
+.avatar-eyes {
+  display: flex;
+  gap: 16px;
+}
+
+.eye {
+  width: 18px;
+  height: 18px;
+  background: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: blink 4s ease-in-out infinite;
+}
+
+.pupil {
+  width: 10px;
+  height: 10px;
+  background: var(--accent);
+  border-radius: 50%;
+}
+
+.avatar-mouth {
+  width: 30px;
+  height: 6px;
+  background: var(--accent2);
+  border-radius: 3px;
+  transition: all 0.2s;
+}
+
+.avatar-mouth.talking {
+  animation: talk 0.3s ease-in-out infinite alternate;
+}
+
+/* Avatar rings */
+.avatar-rings { position: absolute; inset: 0; }
+
+.ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid var(--accent);
+  opacity: 0;
+  inset: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.avatar-speaking .ring {
+  animation: ripple 2s ease-out infinite;
+}
+.avatar-speaking .r1 { animation-delay: 0s; }
+.avatar-speaking .r2 { animation-delay: 0.5s; }
+.avatar-speaking .r3 { animation-delay: 1s; }
+
+.avatar-listening .avatar-face {
+  border-color: var(--accent2);
+  box-shadow: 0 0 30px #00d4aa60;
+  animation: pulse-green 1s ease-in-out infinite;
+}
+
+.avatar-thinking .avatar-face {
+  animation: bob 1.5s ease-in-out infinite;
+}
+
+.avatar-status {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.cart-count-badge {
+  font-size: 0.8rem;
+  color: var(--accent2);
+  font-weight: 600;
+}
+
+/* ── Cart Preview ────────────────────────────────────────────────────────────── */
+.cart-preview-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-top: 0.5rem;
+  width: 100%;
+  text-align: left;
+}
+
+.cart-item-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  font-size: 0.88rem;
+  padding: 0.3rem 0;
+  border-bottom: 1px solid var(--border);
+  width: 100%;
+}
+
+.cart-qty { color: var(--accent); font-weight: 700; min-width: 24px; }
+.cart-name { color: var(--text); }
+
+.checkout-btn {
+  display: block;
+  width: 100%;
+  text-align: center;
+  margin-top: 1rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 100px;
+  color: white !important;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-decoration: none !important;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+.checkout-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+}
+
+/* ── Chat Panel ──────────────────────────────────────────────────────────────── */
+.chat-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.welcome-bubble {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+  color: var(--text);
+  font-size: 1rem;
+  line-height: 1.6;
+  margin: 1rem;
+}
+
+.chat-bubble {
+  padding: 0.85rem 1.1rem;
+  border-radius: 14px;
+  margin: 0.5rem 0.75rem;
+  max-width: 88%;
+  font-size: 0.93rem;
+  line-height: 1.55;
+}
+
+.user-bubble {
+  background: var(--user-bubble);
+  border: 1px solid var(--accent)30;
+  margin-left: auto;
+  border-bottom-right-radius: 4px;
+}
+
+.ai-bubble {
+  background: var(--ai-bubble);
+  border: 1px solid var(--border);
+  border-bottom-left-radius: 4px;
+}
+
+.bubble-sender {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.3rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* ── Input Row ───────────────────────────────────────────────────────────────── */
+.input-row {
+  padding: 0.75rem;
+  border-top: 1px solid var(--border);
+  background: var(--surface2);
+}
+
+/* Override streamlit input styles */
+[data-testid="stTextInput"] input {
+  background: var(--bg) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text) !important;
+  border-radius: 10px !important;
+  font-family: 'DM Sans', sans-serif !important;
+  font-size: 0.95rem !important;
+}
+
+[data-testid="stTextInput"] input:focus {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 2px #6c63ff20 !important;
+}
+
+/* ── Suggestions Row ─────────────────────────────────────────────────────────── */
+.suggestions-row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  padding: 0.5rem 0.75rem;
+}
+
+/* Button styles */
+[data-testid="stButton"] button {
+  background: var(--surface2) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 100px !important;
+  font-family: 'DM Sans', sans-serif !important;
+  font-size: 0.85rem !important;
+  transition: all 0.2s !important;
+}
+
+[data-testid="stButton"] button:hover {
+  border-color: var(--accent) !important;
+  color: var(--accent) !important;
+  background: var(--surface) !important;
+}
+
+[data-testid="stButton"][data-baseweb="button"][kind="primary"] button,
+button[kind="primary"] {
+  background: linear-gradient(135deg, var(--accent), #8b85ff) !important;
+  border: none !important;
+  color: white !important;
+  border-radius: 10px !important;
+}
+
+/* ── Voice ───────────────────────────────────────────────────────────────────── */
+.voice-section {
+  padding: 0.5rem 0.75rem;
+}
+
+.voice-instructions {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.voice-tip {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  background: var(--surface2);
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  padding: 0.6rem 1rem;
+  margin-top: 0.5rem;
+}
+
+.voice-tip code {
+  background: var(--bg);
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.78rem;
+  color: var(--accent2);
+}
+
+/* ── Sidebar ─────────────────────────────────────────────────────────────────── */
+.sidebar-header {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 1rem;
+}
+
+/* ── Animations ──────────────────────────────────────────────────────────────── */
+@keyframes blink {
+  0%, 90%, 100% { transform: scaleY(1); }
+  95% { transform: scaleY(0.1); }
+}
+
+@keyframes talk {
+  from { height: 4px; }
+  to { height: 12px; }
+}
+
+@keyframes ripple {
+  0% { width: 120px; height: 120px; opacity: 0.4; }
+  100% { width: 200px; height: 200px; opacity: 0; }
+}
+
+@keyframes pulse-green {
+  0%, 100% { box-shadow: 0 0 20px #00d4aa40; }
+  50% { box-shadow: 0 0 40px #00d4aa80; }
+}
+
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+/* ── Scrollbar ───────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
